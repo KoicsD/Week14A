@@ -6,5 +6,8 @@ On Week 14A we have to deal with 2 topics:
 
 [Description can be found here.](Description.md)
 
-Please, see how I'm developing my work.
+The project about collections is in folder [SequentialCollections](SequentialCollections/).  
+The project about files and directories is in folder [SeekAndArchive](SeekAndArchive/).
+
+Please, see how I'm developing my work.  
 Thank you!
