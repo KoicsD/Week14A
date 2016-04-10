@@ -66,7 +66,7 @@ namespace SeekAndArchive
         }
 
         // Exercise 2: File watching
-        static void OnChangedOrDeleted(object source, FileSystemEventArgs e)
+        static void OnChanged(object source, FileSystemEventArgs e)
         {
             Console.WriteLine("File: " + e.FullPath + "\t" + e.ChangeType);
         }
@@ -83,9 +83,10 @@ namespace SeekAndArchive
                 FileSystemWatcher watcher = new FileSystemWatcher(file.DirectoryName, file.Name);
                 watcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite
                     | NotifyFilters.FileName | NotifyFilters.DirectoryName;
-                watcher.Changed += new FileSystemEventHandler(OnChangedOrDeleted);
+                watcher.Created += new FileSystemEventHandler(OnChanged);
+                watcher.Changed += new FileSystemEventHandler(OnChanged);
                 watcher.Renamed += new RenamedEventHandler(OnRenamed);
-                watcher.Deleted += new FileSystemEventHandler(OnChangedOrDeleted);
+                watcher.Deleted += new FileSystemEventHandler(OnChanged);
                 watcherList.Add(watcher);
             }
         }
