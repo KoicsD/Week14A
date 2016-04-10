@@ -6,8 +6,11 @@ namespace SeekAndArchive
 {
     class Program
     {
+        // static variables:
         static List<FileInfo> filesFound;
+        static List<FileSystemWatcher> watchers;
 
+        // methods to process command-line arguments:
         static bool TryParseArgs(string[] args, out string fileName, out string directoryName)
         {
             if (args.Length != 2)
@@ -36,6 +39,7 @@ namespace SeekAndArchive
             return true;
         }
 
+        // Exercise 1: Searching for a file
         static void SearchRecursively(string fileName, DirectoryInfo rootDir, List<FileInfo> destFileList)
         {
             foreach (FileInfo file in rootDir.GetFiles())
@@ -61,8 +65,45 @@ namespace SeekAndArchive
             }
         }
 
+        // Exercise 2: File watching
+        static void OnChangedOrDeleted(object source, FileSystemEventArgs e)
+        {
+            Console.WriteLine("File: " + e.FullPath + "\t" + e.ChangeType);
+        }
+
+        static void OnRenamed(object source, RenamedEventArgs e)
+        {
+            Console.WriteLine("File: " + e.OldFullPath + "\trenamed to: " + e.FullPath);
+        }
+
+        static void initializeWatchers(List<FileInfo> fileList, List<FileSystemWatcher> watcherList)
+        {
+            foreach (FileInfo file in fileList)
+            {
+                FileSystemWatcher watcher = new FileSystemWatcher(file.DirectoryName, file.Name);
+                watcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite
+                    | NotifyFilters.FileName | NotifyFilters.DirectoryName;
+                watcher.Changed += new FileSystemEventHandler(OnChangedOrDeleted);
+                watcher.Renamed += new RenamedEventHandler(OnRenamed);
+                watcher.Deleted += new FileSystemEventHandler(OnChangedOrDeleted);
+                watcherList.Add(watcher);
+            }
+        }
+
+        static void listenUntilKeypress(List<FileSystemWatcher> watcherList)
+        {
+            foreach (FileSystemWatcher watcher in watcherList)
+                watcher.EnableRaisingEvents = true;
+            Console.WriteLine("Now application is watching specified files.\nPress any key to exit.");
+            Console.ReadKey(true);
+            foreach (FileSystemWatcher watcher in watcherList)
+                watcher.EnableRaisingEvents = false;
+        }
+
+        // MAIN
         static void Main(string[] args)
         {
+            // processing command-line arguments
             string fileName, directoryName;
             if (!TryParseArgs(args, out fileName, out directoryName))
                 return;
@@ -70,9 +111,15 @@ namespace SeekAndArchive
             if (!TryParseDirName(directoryName, out rootDir))
                 return;
 
+            // Exercise 1
             filesFound = new List<FileInfo>();
             SearchRecursively(fileName, rootDir, filesFound);
             listFiles(filesFound);
+
+            // Exercise 2
+            watchers = new List<FileSystemWatcher>();
+            initializeWatchers(filesFound, watchers);
+            listenUntilKeypress(watchers);
         }
     }
 }
