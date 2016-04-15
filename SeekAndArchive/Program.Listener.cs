@@ -10,14 +10,16 @@ namespace SeekAndArchive
     {
         static List<FileSystemWatcher> watchers;
 
-        static void OnChanged(object source, FileSystemEventArgs e)
+        static void OnChanged(object sender, FileSystemEventArgs e)
         {
             Console.WriteLine("File: " + e.FullPath + "\t" + e.ChangeType);
+            IdentifyAndArchive(sender);
         }
 
-        static void OnRenamed(object source, RenamedEventArgs e)
+        static void OnRenamed(object sender, RenamedEventArgs e)
         {
             Console.WriteLine("File: " + e.OldFullPath + "\trenamed to: " + e.FullPath);
+            IdentifyAndArchive(sender);
         }
 
         static void initializeWatchers(List<FileInfo> fileList, List<FileSystemWatcher> watcherList)
